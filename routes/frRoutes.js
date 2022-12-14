@@ -7,6 +7,7 @@ let authorize_delete = require("../middlewares/authdelete");
 
 router.post("/create", frController.createUser);
 router.post("/login", frController.loginUser);
+router.post("/recognize", authorize, frController.recognizeUser);
 // router.delete("/delete/:regNo",authorize_delete, studentController.deleteStudent);
 // router.post("/update", authorize, studentController.updateStudent);
 

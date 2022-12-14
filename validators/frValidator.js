@@ -100,7 +100,7 @@ exports.fieldcheckrecognizeUser = async (req) => {
   const { imageData } = req.body;
 
   if (!imageData) {
-    return new Response(httpCodes.BAD_REQUEST, "input missing");
+    return new Response(httpCodes.BAD_REQUEST, "input imageData missing");
   } else {
     return new Response(httpCodes.OK, "fieldcheck is ok!");
   }

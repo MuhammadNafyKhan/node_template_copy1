@@ -3,7 +3,7 @@ let frServices = require("../services/frServices");
 const jwt = require("jsonwebtoken");
 const httpCodes = require("../constants/httpCodes");
 const fr = require("../model/fr");
-const fs = require('fs');
+const fs = require("fs");
 
 exports.loginUser = async (req, res) => {
   const body = req.body;
@@ -17,7 +17,7 @@ exports.loginUser = async (req, res) => {
         { user_id: validated.msg._id, userName },
         process.env.TOKEN_KEY,
         {
-          expiresIn: "99000",
+          expiresIn: String(120 *10000),
         }
       );
       // save user token
@@ -27,13 +27,16 @@ exports.loginUser = async (req, res) => {
       //console.log(validated.msg);
       console.log("logged in successfully");
 
+      const imageContent = fs.readFileSync(
+        validated.msg.baseURL + validated.msg.imageName,
+        { encoding: "base64" }
+      );
 
-      const imageContent = fs.readFileSync(validated.msg.baseURL + validated.msg.imageName, {encoding: 'base64'});
-
-
-      return res
-        .status(validated.code)
-        .send({ userName: validated.msg.userName, token: validated.msg.token, imageData: imageContent  });
+      return res.status(validated.code).send({
+        userName: validated.msg.userName,
+        token: validated.msg.token,
+        imageData: imageContent,
+      });
     } else {
       console.log("log in failed");
 
@@ -98,7 +101,7 @@ exports.getstudentData = async (req, res) => {
         .status(httpCodes.BAD_REQUEST)
         .send("page must be greater than 0");
     }
-    //  We have to make it integer because
+    //  We have to make it integer becausehttps://github.com/MuhammadNafyKhan/node_template_copy1.githttps://github.com/MuhammadNafyKhan/node_template_copy1.git
     // query parameter passed is string
     const limit = parseInt(size);
 
@@ -124,20 +127,31 @@ exports.getstudentData = async (req, res) => {
 exports.recognizeUser = async (req, res) => {
   console.log("token verified!");
   try {
-    // const inputToken =
-    //   req.body.token || req.query.token || req.headers["x-access-token"];
-    // //regNo = req.regNo;
     let field = await frValidator.fieldcheckrecognizeUser(req);
     if (field.code !== httpCodes.OK) {
       return res.status(field.code).send(field.msg);
     }
+    console.log("fieldcheck recognize user satisfied");
+    console.log("user_id : ", req.user_id);
+
     let user_id = req.user_id; //imageData
     let user = await frServices.findUser(user_id);
+    ref_img = user.baseURL + user.imageName;
 
+    targetimgPath =
+      "/home/tk-lpt-739/Desktop/node_template (copy1)/temp/trg_img.jpeg";
 
+    saveimgResponse = await frServices.saveImg(
+      req.body.imageData,
+      targetimgPath
+    );
+    if (saveimgResponse.code !== httpCodes.OK) {
+      console.log("saving image  failed");
+      return res.status(saveimgResponse.code).send(saveimgResponse.msg);
+    }
+    console.log("imageData saved successfully: \n", imageData);
 
-
-    return res.status(httpCodes.OK).send("User updated Successfully!");
+    return res.status(httpCodes.OK).send("recognized user!");
   } catch (err) {
     return res.status(
       httpCodes.INTERNAL_SERVER_ERROR,
