@@ -2,6 +2,7 @@ const fr = require("../model/fr");
 let response = require("../helper/responseClass");
 const httpCodes = require("../constants/httpCodes");
 const bcrypt = require("bcryptjs");
+const user = require("../model/user");
 
 exports.addnewUser = async (req) => {
   const { userName, password, imageData } = req.body;
@@ -53,6 +54,34 @@ exports.deleteStudent = async (regNo) => {
     return new response(
       httpCodes.INTERNAL_SERVER_ERROR,
       "Internal server error occured while (deleting user) !\n" + err
+    );
+  }
+};
+
+exports.findUser = async (userid) => {
+  try {
+    user = await fr.find({ _id: userid });
+
+    // return new user
+    return new response(httpCodes.OK, user);
+  } catch (err) {
+    return new response(
+      httpCodes.INTERNAL_SERVER_ERROR,
+      "Internal server error occured while (deleting user) !\n" + err.message
+    );
+  }
+};
+
+exports.loadImageData = async (path) => {
+  try {
+    user = await fr.find({ _id: userid });
+    j=0
+    // return new user
+    return new response(httpCodes.OK, user);
+  } catch (err) {
+    return new response(
+      httpCodes.INTERNAL_SERVER_ERROR,
+      "Internal server error occured while (deleting user) !\n" + err.message
     );
   }
 };
