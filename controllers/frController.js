@@ -132,7 +132,6 @@ exports.recognizeUser = async (req, res) => {
       return res.status(field.code).send(field.msg);
     }
 
-
     let userName = req.userName; //imageData
     let userid = req.user_id; //imageData
     let user = await frServices.findUser(userName);
