@@ -8,6 +8,7 @@ const parent = {
       return `${this.mom_name} is my mother.`;
     },
   };
+  
 console.log(parent.mother());
 
 function test() {
