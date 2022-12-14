@@ -17,7 +17,7 @@ exports.loginUser = async (req, res) => {
         { user_id: validated.msg._id, userName },
         process.env.TOKEN_KEY,
         {
-          expiresIn: String(120 *10000),
+          expiresIn: String(300 * 10000),
         }
       );
       // save user token
@@ -25,12 +25,12 @@ exports.loginUser = async (req, res) => {
       let user = await fr.findOne({ userName });
       user.token = token;
       //console.log(validated.msg);
-      console.log("logged in successfully");
 
       const imageContent = fs.readFileSync(
         validated.msg.baseURL + validated.msg.imageName,
         { encoding: "base64" }
       );
+      console.log("logged in successfully");
 
       return res.status(validated.code).send({
         userName: validated.msg.userName,
@@ -131,27 +131,27 @@ exports.recognizeUser = async (req, res) => {
     if (field.code !== httpCodes.OK) {
       return res.status(field.code).send(field.msg);
     }
-    console.log("fieldcheck recognize user satisfied");
-    console.log("user_id : ", req.user_id);
 
-    let user_id = req.user_id; //imageData
-    let user = await frServices.findUser(user_id);
+
+    let userName = req.userName; //imageData
+    let userid = req.user_id; //imageData
+    let user = await frServices.findUser(userName);
     ref_img = user.baseURL + user.imageName;
 
     targetimgPath =
-      "/home/tk-lpt-739/Desktop/node_template (copy1)/temp/trg_img.jpeg";
+      "/home/tk-lpt-739/Desktop/node_template_copy1/temp/trg_img.jpeg";
 
-    saveimgResponse = await frServices.saveImg(
+    let saveimgResponse = await frServices.saveImg(
       req.body.imageData,
       targetimgPath
     );
-    if (saveimgResponse.code !== httpCodes.OK) {
-      console.log("saving image  failed");
-      return res.status(saveimgResponse.code).send(saveimgResponse.msg);
-    }
-    console.log("imageData saved successfully: \n", imageData);
 
-    return res.status(httpCodes.OK).send("recognized user!");
+    if (saveimgResponse.code === httpCodes.OK) {
+      console.log("saving image success");
+      return res.status(httpCodes.OK).send("recognized user!");
+    }
+    console.log("saving image failed");
+    return res.status(saveimgResponse.code).send(saveimgResponse.msg);
   } catch (err) {
     return res.status(
       httpCodes.INTERNAL_SERVER_ERROR,

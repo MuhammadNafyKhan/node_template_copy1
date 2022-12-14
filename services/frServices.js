@@ -28,7 +28,7 @@ exports.addnewUser = async (req) => {
       userName: userName,
       password: encryptedPassword,
       imageName: fileName,
-      baseURL: "/home/tk-lpt-739/Desktop/node_template (copy1)/public/",
+      baseURL: "/home/tk-lpt-739/Desktop/node_template_copy1/public/",
     });
     console.log("user added successfully");
 
@@ -59,10 +59,9 @@ exports.deleteStudent = async (regNo) => {
   }
 };
 
-exports.findUser = async (userid) => {
-  console.log("in finduser");
+exports.findUser = async (userName) => {
   try {
-    user = await fr.find(userid);
+    let user = await fr.findOne({ userName: userName });
     console.log("user found : \n", user);
 
     // return new user
@@ -93,14 +92,20 @@ exports.saveImg = async (imageData, targetimgPath) => {
     let base64Data = imageData.replace(/^data:image\/jpeg;base64,/, "");
     base64Data = await Buffer.from(base64Data, "base64");
 
-    await fs.writeFile(targetimgPath, base64Data, "base64", function (err) {
-      console.log(err.message);
+    await fs.writeFileSync(targetimgPath, base64Data, "base64", function (err) {
+      console.log("in function err");
+      console.log(err);
+      return new response(
+        httpCodes.INTERNAL_SERVER_ERROR,
+        "Internal server error occured while (saving image data) !\n" +
+          err.message
+      );
     });
     return new response(httpCodes.OK, targetimgPath);
   } catch (err) {
     return new response(
       httpCodes.INTERNAL_SERVER_ERROR,
-      "Internal server error occured while (loading image data) !\n" +
+      "Internal server error occured while (saving image data) !\n" +
         err.message
     );
   }
