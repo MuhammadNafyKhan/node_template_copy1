@@ -23,7 +23,7 @@ const port = process.env.PORT || 4000;
 try {
   // connecting with local mongodb databse
   database
-    .connect()
+    .connectwithCloudMongoDB()
     .then((message) => {
       console.log(message);
       app.listen(port, () => {

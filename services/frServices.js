@@ -59,12 +59,54 @@ exports.deleteStudent = async (regNo) => {
   }
 };
 
+exports.updateUser = async (req) => {
+  try {
+    console.log("in update user");
+    let uname = req.userName;
+    let newpass = req.body.newpassword;
+    let imdata = req.body.newimageData;
+    let newname = req.body.newuserName;
+
+    if (newname && newname.length < 6 && newname.length > 0) {
+
+      return new response(httpCodes.BAD_REQUEST, "newuserName length < 6");
+    }
+    if (newpass && newpass.length < 6 && newpass.length > 0) {
+      return new response(httpCodes.BAD_REQUEST, "newpassword length < 6");
+    }
+
+    let user = await this.findUser({ userName: uname });
+    console.log("finally userfound\n", user);
+
+    if (user.code === httpCodes.OK) {
+      if (newpass && newpass.length >= 6) {
+        let encryptedPassword = await bcrypt.hash(
+          newpass,
+          await bcrypt.genSalt(10)
+        );
+        let newvalues = { $set: { password: encryptedPassword } };
+        await fr.updateOne({ userName: uname }, newvalues);
+      }
+      if (imdata) {
+        let newvalues = { $set: { imageData: imdata } };
+        await fr.updateOne({ userName: uname }, newvalues);
+      }
+      if (newname) {
+        let newvalues = { $set: { userName: newname } };
+        await fr.updateOne({ userName: uname }, newvalues);
+      }
+      console.log("user updated successfully");
+      return new response(httpCodes.OK, "user updated successfully\n");
+    }
+    return new response(httpCodes.BAD_REQUEST, "user doesn't exist");
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 exports.findUser = async (userName) => {
   try {
-    let user = await fr.findOne({ userName: userName });
-    console.log("user found : \n", user);
-
-    // return new user
+    let user = await fr.findOne(userName);
     return new response(httpCodes.OK, user);
   } catch (err) {
     return new response(

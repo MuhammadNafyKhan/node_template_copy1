@@ -17,7 +17,7 @@ exports.loginUser = async (req, res) => {
         { user_id: validated.msg._id, userName },
         process.env.TOKEN_KEY,
         {
-          expiresIn: String(300 * 10000),
+          expiresIn: String(12 * 60 * 60 * 1000),
         }
       );
       // save user token
@@ -26,12 +26,21 @@ exports.loginUser = async (req, res) => {
       user.token = token;
       //console.log(validated.msg);
 
-      const imageContent = fs.readFileSync(
+      let imageContent = fs.readFileSync(
         validated.msg.baseURL + validated.msg.imageName,
         { encoding: "base64" }
       );
+      // console.log("imagecontent \n", imageContent);
       console.log("logged in successfully");
-
+      await fs.writeFileSync(
+        "/home/tk-lpt-739/Desktop/node_template_copy1/temp/kkkk.jpeg",
+        imageContent,
+        "base64",
+        function (err) {
+          console.log("in function err");
+          console.log(err);
+        }
+      );
       return res.status(validated.code).send({
         userName: validated.msg.userName,
         token: validated.msg.token,
@@ -60,6 +69,15 @@ exports.createUser = async (req, res) => {
     }
     const addUser = await frServices.addnewUser(req);
     return res.status(addUser.code).send(addUser.msg);
+  } catch (err) {
+    return res.status(httpCodes.INTERNAL_SERVER_ERROR).send(err);
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    let updated = await frServices.updateUser(req);
+    return res.status(updated.code).send(updated.msg);
   } catch (err) {
     return res.status(httpCodes.INTERNAL_SERVER_ERROR).send(err);
   }
